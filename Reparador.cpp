@@ -186,6 +186,7 @@ int main ()
 
     cout << "\nInforme o CPF que deseja reparar:\n";
     cin >> sCPF;
+    cout << endl;
     tamVec = str2vec(sCPF, vCPF);
 
     if(tamVec == 11)
@@ -199,11 +200,20 @@ int main ()
             cout << "Seu CPF pode ser: ";
             prtVec(vCPF, 9);
             prtVec(vCPF_dig_aux, 2);
+            cout << endl;
             CPFs_pos++;
         }
 
-        CPFs_pos = repCPF(vCPF, vCPF_dig, 9);
+        CPFs_pos = repCPF(vCPF, vCPF_dig, 9) + CPFs_pos;
     }
+
+    if(CPFs_pos == 0)
+    {
+        cout << "Erro: CPF sem conserto." << endl;
+    }
+
+    cin.ignore();
+    cin.get();
 
     return 0;
 }
