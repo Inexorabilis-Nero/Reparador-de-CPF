@@ -45,7 +45,7 @@ void copVec (int b[], int c, int aux[]) /* Faz uma cópia desde a origem de um v
 
 void multCres (int d[], int b[], int c) /* Multiplica sucessivamente os elementos de um vetor 'b' desde o 'c'nésimo elemento até sua origem utilizando
                                            uma progressão aritmética de razão 1 e termo inicial 2 como multiplicador. Depois, adiciona todos os
-                                           elementos, realiza uma operação de módulo com divisor 11 e checa se o valor obtido é maior que 2. Caso 
+                                           elementos, realiza uma operação de módulo com divisor 11 e checa se o valor obtido é maior que 1. Caso 
                                            verdadeiro, armazena 11 - [resultado] em 'd'[0]. Caso falso, armazena 0 em 'd'[0]. Posteriormente, repete o 
                                            processo suprarreferido utilizando 'd'[0] como elemento inicial da multiplicação e por fim armazenando o 
                                            resultado em 'd'[1] */                  
