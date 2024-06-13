@@ -164,7 +164,7 @@ int main ()
          << "||| Inexorabilis-Nero - ver 0.1\n"
          << "|||\n"
          << "||| Contribua com esse projeto open-source:\n"
-         << "||| Github: https://github.com/\n"
+         << "||| https://github.com/Inexorabilis-Nero/Reparador-de-CPF/\n"
          << "||\n"
          << "|\n\n";
 
