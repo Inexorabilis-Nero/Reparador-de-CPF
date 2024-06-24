@@ -1,7 +1,22 @@
 #include <iostream>
 using namespace std;
 
-const int lVec = 32;
+const short unsigned int lVec = 32;
+const unsigned long int MAX_CPF = 999999999;
+const unsigned long int MAX_INT = ~0;           /* Será utilizado no lugar de numeric_limits<streamsize>::max() */
+
+int pow(int a, int b)
+{
+    int c = a;
+
+    for(; b > 1; b--)
+        a = a * c;
+
+    if (b == 0)
+        a = 1;
+
+    return a;
+}
 
 void iniVec (int a, int b[]) /* Inicializa um vetor 'b' de tamanho 'a' */
 {
@@ -102,7 +117,7 @@ int deltaVec (int d[], int b[], int c) /* Compara dois vetores 'd' e 'b' de tama
 return a;
 }
 
-int repCPF (int b[], int d[], int c) /* Recebe dois vetores, um 'b' de tamanho 'c' e outro 'd' de tamanho 2. Então, realiza uma
+int repCPF (int b[], int d[], int c, char a) /* Recebe dois vetores, um 'b' de tamanho 'c' e outro 'd' de tamanho 2. Então, realiza uma
                                         análise combinatória simplificada para determinar as iterações que satisfazem a
                                         condição da função multCres e as imprime. Também retorna a quantidade de resultados
                                         verdadeiros encontrados. */
@@ -126,7 +141,7 @@ int repCPF (int b[], int d[], int c) /* Recebe dois vetores, um 'b' de tamanho '
             b_aux[i] = j;
             multCres(b_dig_aux, b_aux, 9);
             digIdt = deltaVec(b_dig_aux, d, 2);
-            if(digIdt == 2)
+            if(digIdt == 2 && (b_aux[8] == (a - '0') || a == 'n'))
             {
                 cout<<"Seu CPF pode ser: ";
                 prtVec(b_aux, 9);
@@ -138,18 +153,48 @@ int repCPF (int b[], int d[], int c) /* Recebe dois vetores, um 'b' de tamanho '
     }
 
 return itrVerd;
-}               
+}
+
+int repCPF_completo (int b[], int d[], int c, char a)
+{
+    int b_aux[9];
+    int b_dig_aux[2];
+    int digIdt = 0;
+    int itrVerd = 0;
+
+    iniVec(c, b_aux);
+
+    for(int i = 0; i < MAX_CPF; i++)
+    {
+        digIdt = 0;
+        multCres(b_dig_aux, b_aux, 9);
+        digIdt = deltaVec(b_dig_aux, d, 2);
+            if(digIdt == 2 && (b_aux[8] == (a - '0') || a == 'n'))
+            {
+                cout<<"Seu CPF pode ser: ";
+                prtVec(b_aux, 9);
+                prtVec(b_dig_aux, 2);
+                cout<<endl;
+                itrVerd++;
+            }
+        for(int j = 0; j < c; j++)
+            b_aux[c-j-1] = (i / pow(10, j)) % 10;
+    }
+
+    return itrVerd;
+}
 
 int main ()
 {
-    string sCPF;                       /* String CPF */
-    string eCPF;                       /* Estado CPF */
-    int vCPF[lVec];                    /* Vetor CPF */
-    int vCPF_dig[2];                   /* Dígitos verificadores do CPF original */
-    int vCPF_dig_aux[2];               /* Dígitos verificadores do CPF auxiliar */
-    int tamVec = 0;                    /* Tamanho do vetor */
-    int digIdt = 0;                    /* Dígitos idênticos */
-    int CPFs_pos = 0;                  /* CPFs possíveis */
+    string sCPF;                             /* String CPF */
+    char eCPF;                               /* Estado CPF */
+    char validar;                            /* Utilizado para validar entrada através de perguntas de sim ou não [s/n] */
+    int vCPF[lVec];                          /* Vetor CPF */
+    int vCPF_dig[2];                         /* Dígitos verificadores do CPF original */
+    int vCPF_dig_aux[2];                     /* Dígitos verificadores do CPF auxiliar */
+    int tamVec = 0;                          /* Tamanho do vetor */
+    int digIdt = 0;                          /* Dígitos idênticos */
+    int CPFs_pos = 0;                        /* CPFs possíveis */
 
     iniVec(lVec, vCPF);
     iniVec(2, vCPF_dig);
@@ -161,7 +206,7 @@ int main ()
          << "|\n"
          << "||\n"
          << "||| Reparador de CPF\n"
-         << "||| Inexorabilis-Nero - ver 0.1\n"
+         << "||| Inexorabilis-Nero - ver 0.2\n"
          << "|||\n"
          << "||| Contribua com esse projeto open-source:\n"
          << "||| https://github.com/Inexorabilis-Nero/Reparador-de-CPF/\n"
@@ -177,10 +222,12 @@ int main ()
 
     cin >> eCPF;
 
-    while ((eCPF[0] < 48 || eCPF[0] > 57) && eCPF[0] != 110)
+    while ((eCPF < 48 || eCPF > 57) && eCPF != 110 || cin.peek() != '\n')
     {
+        cin.clear();
+        cin.ignore(MAX_INT, '\n');
         cout<<"\nResposta inexata. Por favor, selecione uma das alternativas acima\n"
-                <<"[ ]\b\b";
+            <<"[ ]\b\b";
         cin >> eCPF;
     }
 
@@ -195,19 +242,50 @@ int main ()
         multCres(vCPF_dig_aux, vCPF, 9);
         digIdt = deltaVec(vCPF_dig_aux, vCPF_dig, 2);
 
-        if(digIdt == 1)
+        switch(digIdt)
         {
-            cout << "Seu CPF pode ser: ";
-            prtVec(vCPF, 9);
-            prtVec(vCPF_dig_aux, 2);
-            cout << endl;
-            CPFs_pos++;
+            case 0:
+                CPFs_pos = repCPF(vCPF, vCPF_dig, 9, eCPF) + CPFs_pos;
+                break;
+            case 1:
+                if(vCPF[8] == (eCPF - '0') || eCPF == 'n')
+                {
+                    cout << "Seu CPF pode ser: ";
+                    prtVec(vCPF, 9);
+                    prtVec(vCPF_dig_aux, 2);
+                    cout << endl;
+                    CPFs_pos++;
+                    CPFs_pos = repCPF(vCPF, vCPF_dig, 9, eCPF) + CPFs_pos;
+                }
+                break;
+            case 2:
+                cout << "Erro: O CPF inserido carece de avarias.\n";
+                break;
+            default:
+                cout << "Erro: Resultado inesperado na var. digIdt. Por favor, contate o administrador do projeto.\n";
         }
 
-        CPFs_pos = repCPF(vCPF, vCPF_dig, 9) + CPFs_pos;
+        if(digIdt != 2 )
+        {
+            cout << endl << CPFs_pos << " CPF(s) encontrado(s) pela varredura simplificada. Deseja realizar uma varredura completa? [s/n]\n"
+                 << "[ ]\b\b";
+
+            cin >> validar;
+
+            while (validar != 110 && validar != 115 || cin.peek() != '\n')
+            {
+                cin.clear();
+                cin.ignore(MAX_INT, '\n');
+                cout<<"\nResposta inexata. Por favor, responda com 's' ou 'n'.\n"
+                    <<"[ ]\b\b";
+                cin >> validar;
+            }
+            if (validar == 115)
+            CPFs_pos = repCPF_completo(vCPF, vCPF_dig, 9, eCPF) + CPFs_pos;
+        }
     }
 
-    if(CPFs_pos == 0)
+    if(CPFs_pos == 0 && digIdt != 2)
     {
         cout << "Erro: CPF sem conserto." << endl;
     }
